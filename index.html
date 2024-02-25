@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script type="module">
+      import { PGlite } from "https://cdn.jsdelivr.net/npm/@electric-sql/pglite/dist/index.js";
+
+      const db = new PGlite("idb://my-pgdata");
+
+      await db.waitReady;
+
+      console.log("ready:", await db.ready);
+
+      await db.query(
+        "CREATE TABLE IF NOT EXISTS kv (k TEXT PRIMARY KEY, v TEXT)"
+      );
+
+      const rowCount = await db.query("SELECT * FROM kv");
+      const newKey = "foo" + (rowCount.length + 1).toString();
+      const newVal = "bar" + (rowCount.length + 1).toString();
+
+      console.log("rows", rowCount.length);
+      console.log("newKey", newKey);
+      console.log("newKey", newVal);
+
+      await db.query(`insert into kv (k, v) values ('${newKey}', '${newVal}')`);
+
+      const result = await db.query("SELECT * FROM kv");
+
+      console.log(result);
+
+      await db.close();
+
+      console.log("closed:", await db.closed);
+    </script>
+    <title>Document</title>
+  </head>
+  <body>
+    Look at the console
+  </body>
+</html>
