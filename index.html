@@ -11,24 +11,23 @@
       await db.waitReady;
 
       console.log("ready:", await db.ready);
-
       await db.query(
         "CREATE TABLE IF NOT EXISTS kv (k TEXT PRIMARY KEY, v TEXT)"
       );
 
-      const rowCount = await db.query("SELECT * FROM kv");
-      const newKey = "foo" + (rowCount.length + 1).toString();
-      const newVal = "bar" + (rowCount.length + 1).toString();
+      const result1 = await db.query("SELECT * FROM kv");
+      const rows = result1.rows.length;
+      const newKey = `foo${rows + 1}`;
+      const newVal = `bar${rows + 1}`;
 
-      console.log("rows", rowCount.length);
-      console.log("newKey", newKey);
-      console.log("newKey", newVal);
+      const insertResult = await db.query(
+        "INSERT INTO kv (k, v) VALUES ($1, $2)",
+        [newKey, newVal]
+      );
 
-      await db.query(`insert into kv (k, v) values ('${newKey}', '${newVal}')`);
-
-      const result = await db.query("SELECT * FROM kv");
-
-      console.log(result);
+      const result2 = await db.query("SELECT * FROM kv");
+      console.log(result2.rows);
+      console.log(newKey, newVal);
 
       await db.close();
 
